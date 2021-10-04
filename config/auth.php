@@ -38,15 +38,20 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'csauth',
         ],
-
+ 
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
             'hash' => false,
         ],
-    ],
+ 
+        'customcs' => [
+            'driver' => 'session',
+            'provider' => 'csauth',
+        ]
+    ], 
 
     /*
     |--------------------------------------------------------------------------
@@ -68,14 +73,19 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\User::class,
         ],
-
+ 
+        'csauth' => [
+            'driver' => 'customcs',
+            'model' => App\User::class,
+        ]
+ 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
+    ], 
 
     /*
     |--------------------------------------------------------------------------
