@@ -40,18 +40,18 @@ class Clidemo extends Model
     } 
 
     public function alteraClidemo($req,$id) {
-        //Os dados passados pela request
+        
         $dados = $req->all();
-        //Vê se a clidemo existe. Os dados vão ser sobrepostos, não serve para mais nada
+        
         $clidemo = Clidemo::find($id);
         if (is_null($clidemo)) {
             return false;
         }
-        //Preenche com os dados passados
+        
         $clidemo->fill($dados);
-        //Salva no banco
+        
         $clidemo->save();
-        //Retorna o novo
+        
         return $clidemo;
     }
 
