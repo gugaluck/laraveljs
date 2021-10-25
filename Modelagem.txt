@@ -1,0 +1,46 @@
+
+================================================================================================================
+============================================= SCRIPT ===========================================================
+================================================================================================================
+CREATE SCHEMA sistemacampeonato
+
+
+CREATE TABLE sistemacampeonato.tbcampeonato
+(
+  camcodigo serial NOT NULL,
+  camnome character varying(50) NOT NULL CONSTRAINT UK_CAMNOME UNIQUE,
+  CONSTRAINT pk_tbcampeonato PRIMARY KEY (camcodigo)
+)
+
+CREATE TABLE sistemacampeonato.tbtime
+(
+  timcodigo serial NOT NULL,
+  timnome character varying(50) NOT NULL CONSTRAINT UK_TIMNOME UNIQUE
+  PRIMARY KEY (timcodigo)
+)
+
+
+CREATE TABLE sistemacampeonato.tbatleta
+(
+  atlcodigo serial NOT NULL,
+  atlnome character varying(70) NOT NULL,
+  atlpeso numeric(10,2) NOT NULL,
+  atlaltura numeric(10,2) NOT NULL,
+  timcodigo integer not null,
+  CONSTRAINT pk_tbatleta PRIMARY KEY (atlcodigo),
+  CONSTRAINT "FK TBATLETA -> TBTIME" FOREIGN KEY (timcodigo)
+      REFERENCES sistemacampeonato.tbtime (timcodigo) 
+)
+
+
+CREATE TABLE sistemacampeonato.tbtimecampeonato
+(
+  timcodigo integer NOT NULL,
+  camcodigo integer NOT NULL,
+  CONSTRAINT pk_tbtimecampeonato PRIMARY KEY (timcodigo, camcodigo), 
+  CONSTRAINT "FK TBTIMECAMPEONATO -> TBTIME" FOREIGN KEY (timcodigo)
+      REFERENCES sistemacampeonato.tbtime (timcodigo),
+  CONSTRAINT "FK TBTIMECAMPEONATO -> TBCAMPEONATO" FOREIGN KEY (camcodigo)
+      REFERENCES sistemacampeonato.tbcampeonato (camcodigo) 
+)
+
