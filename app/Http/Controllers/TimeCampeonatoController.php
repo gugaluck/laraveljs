@@ -33,9 +33,11 @@ class TimeCampeonatoController extends Controller
     public function listaTimeCampeonatos() {
         DB::connection()->enableQueryLog();
         
-        if (view()->exists('time_campeonato.listagem')) {
+
             $time_c =   DB::select('select tbtimecampeonato.id,
+                                            tbcampeonato.id as campeonato_id,
                                             tbcampeonato.nome as campeonato_nome,
+                                            tbtime.id as time_id,
                                             tbtime.nome as time_nome
                                     from tbtimecampeonato
                                     join tbtime
@@ -46,11 +48,9 @@ class TimeCampeonatoController extends Controller
                 DB::getQueryLog()
             );
             
-            return view('time_campeonato.listagem', 
-            ['t_campeonatos' => $time_c]);
-        } else {
-            return 'Página não encontrada.';
-        }
+            return response()->json($time_c, 200)
+            ->header('Content-Type', 'application/json');
+      
     }
 
     public function getCampeonato($id) {

@@ -17,4 +17,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/produtos/novo', 'ProdutosController@create');
+Route::get('/time', function() {
+    return view('time.listagem');
+});
+
+Route::get('/campeonato', function() {
+    return view('campeonato.listagem');
+});
+
+Route::get('/atleta', function() {
+    return view('atleta.listagem');
+});
+
+Route::get('/timecampeonato', function() {
+    return view('time_campeonato.listagem');
+});

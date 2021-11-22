@@ -7,44 +7,208 @@
 @section('conteudo')
     <h5>Campeonatos</h5>
     <hr>
-    @if(Session::has('message'))
-        <p class="alert alert-info">{{ Session::get('message') }}</p>
-    @endif
+
+    <button onclick="formulario()">Cadastrar</button>
+
+    <div class="modal">
+    </div>
 
     <table class="table">
-        <tr style="background-color: darkgray">
-            <td><b>Código</b></td>
-            <td><b>Nome</b></td>
-            <td><b>Alterar</b></td>
-            <td><b>Remover</b></td>
-        </tr>
-        @foreach ($campeonatos as $p)
-            <tr style="background-color:#d3d4de">
-                <td><a href="campeonato/detalhe/{{$p->id}}">{{$p->id}}</a></td>
-                <td>{{$p->nome}}</td>
-                <td><a href="campeonato/formulario_alt/{{$p->id}}"><img alt="Alterar" src="http://localhost/trab_final_laravel/imagens/alterar.png"  width="30" height="30"></a></td>
-                <td><a href="/api/campeonato" onclick="removeCampeonato()" id="delete" data-codigo="{{$p->id}}"><img alt="Remover" src="http://localhost/trab_final_laravel/imagens/remover.png"  width="30" height="30"></a></td>
-                
-            </tr>
-        @endforeach
+
     </table>
-@stop
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
 
+    <script>
 
-function removeCampeonato() {
-    oBotao = document.getElementById('delete');
-    var id = parseInt(oBotao.getAttribute('data-codigo'));
+        function carregarCampeonatos() {
+            oTable = document.querySelector('.table');
+            aCabecalho = ['Código', 'Nome', 'Alterar', 'Remover'];
+            const oTr = document.createElement('tr');
+            oTr.style.backgroundColor  = 'darkgray';
 
-    $.ajax({
-        url: '/api/campeonato/campeonato_delete/'+id,
-        type: 'DELETE',
-        success: function(result) {
-            alert('Campeonato removido com sucesso!');
+            aCabecalho.forEach(element => {
+                oColuna = document.createElement('td');
+                oColuna.style.fontWeight ='bold';
+                oColuna.innerHTML = element;
+
+                oTr.appendChild(oColuna);
+
+                oTable.appendChild(oTr);
+            });
+
+            $.ajax({
+                url: '/api/campeonato',
+                type: 'GET',
+                success: function(result) {
+                    if(result) {
+                        result.forEach(element => {
+                            const oTr = document.createElement('tr');
+                            oTr.style.backgroundColor  = '#d3d4de';
+
+                            aHref = document.createElement('a');
+                            aHref.setAttribute('href', 'campeonato/detalhe/'+element.id);
+
+                            oCodigo = document.createElement('td');
+                            oCodigo.appendChild(aHref);
+         
+                            aHref.innerHTML = element.id;
+
+                            oTr.appendChild(oCodigo);
+
+                            oNome = document.createElement('td');
+                            oNome.innerHTML = element.nome;
+
+                            oTr.appendChild(oNome);
+
+                            oAltera = document.createElement('td');
+                            oImgAlt = document.createElement('img');
+                            oImgAlt.setAttribute('src', 'http://localhost/trab_final_laravel/imagens/alterar.png');
+                            oImgAlt.setAttribute('width', '45px');
+                            oImgAlt.setAttribute('height', '40px');
+                            oImgAlt.style.cursor = 'pointer';
+                            oImgAlt.setAttribute('onclick', 'formAlteraCampeonato('+element.id+',"'+element.nome+'")');
+
+                            oRemove = document.createElement('td');
+                            oImgDel = document.createElement('img');
+                            oImgDel.setAttribute('src', 'http://localhost/trab_final_laravel/imagens/remover.png');
+                            oImgDel.setAttribute('width', '45px');
+                            oImgDel.setAttribute('height', '40px');
+                            oImgDel.style.cursor = 'pointer'
+                            oImgDel.setAttribute('onclick', 'deletaCampeonato('+element.id+')');
+                 
+
+                            oAltera.appendChild(oImgAlt);
+                            oRemove.appendChild(oImgDel);
+
+                            oTr.appendChild(oAltera);
+                            oTr.appendChild(oRemove);
+                
+                            oTable.appendChild(oTr);
+                        });
+                      
+                    };
+                }
+            });
         }
-    });
-}
 
-</script>
+        function formAlteraCampeonato(id, nome) {
+            formulario(id, nome);
+        }
 
+        function alterarCampeonato(codigo) {
+            debugger;
+            $.ajax({
+                url: '/api/campeonato/update/'+codigo,
+                type: 'PUT',
+                data: {id: codigo, nome: document.getElementById('nome').value},
+                success: function(result) {
+                    alert('Campeonato removido com sucesso!');
+                    carregarCampeonatos();
+                }
+                
+            });
+
+            return false;
+        }
+
+        function deletaCampeonato(id) {
+            //mudar para remover a linha apenas.
+            $.ajax({
+                url: '/api/campeonato/delete/'+id,
+                type: 'DELETE',
+                success: function(result) {
+                    alert('Campeonato removido com sucesso!');
+
+                    oConsulta = document.querySelector('.table');
+
+                    while (oConsulta.firstChild) {
+                        oConsulta.removeChild(oConsulta.lastChild);
+                    }
+
+                    carregarCampeonatos();
+                }
+            });
+
+            return false;
+        }
+
+        function formulario(id, nome) {
+            let bAltera = id ? true : false;
+
+            oModal = document.querySelector('.modal_leo');
+
+            //Limpa o Modal (Isso serve para quando ficar clicando no botão "Novo")
+            while (oModal.firstChild) {
+                oModal.removeChild(oModal.lastChild);
+            }
+
+            oModal.style.display = 'block';
+
+            oDivFechar = document.createElement('div');
+            oDivFechar.setAttribute('class', 'fechar');
+            oDivFechar.setAttribute('onclick', 'fechar()');
+            oDivFechar.innerHTML = 'X';
+            oModal.appendChild(oDivFechar);
+            
+            oH1 = document.createElement('h1');
+            oForm = document.createElement('form');
+            oForm.setAttribute('onsubmit', bAltera ? 'alterarCampeonato('+id+')' : 'cadastrarCampeonato()');
+
+            oH1.innerHTML = bAltera ? 'Alteração do campeonato: '+ nome : 'Cadastro de Campeonatos';
+            oH1.style.textAlign = 'center';
+
+            oLabel = document.createElement('label');
+            oLabel.setAttribute('for', 'nome');
+            oLabel.innerHTML = 'Nome:';
+
+            oInput = document.createElement('input');
+            oInput.setAttribute('type', 'text');
+            oInput.setAttribute('name', 'nome');
+            oInput.setAttribute('id', 'nome');
+
+            if (bAltera) {
+                oInput.value = nome;
+            }
+
+            oQuebra = document.createElement('br');
+
+            oSubmit = document.createElement('input');
+            oSubmit.setAttribute('type', 'submit');
+            oSubmit.setAttribute('value', bAltera ? 'Alterar': 'Cadastrar');
+            oSubmit.style.marginTop = '50px';
+            oSubmit.style.marginLeft = '40%';
+
+            oForm.appendChild(oH1);
+            oForm.appendChild(oLabel);
+            oForm.appendChild(oInput);
+            oForm.appendChild(oQuebra);
+            oForm.appendChild(oSubmit);
+
+            oModal.appendChild(oForm);
+        }
+
+        function fechar() {
+            let modal = document.querySelector('.modal_leo');
+            modal.style.display = 'none';
+        }
+
+        function cadastrarCampeonato() {
+            $.ajax({
+                url: '/api/campeonato',
+                type: 'POST',
+                data: {nome: document.getElementById('nome').value},
+                success: function(result) {
+                    alert('Campeonato cadastrado com sucesso!');
+                   // carregarCampeonatos();
+                }
+            });
+
+            return true;
+        }
+
+        $(function() {
+            carregarCampeonatos();
+        });
+        
+    </script>
+
+@stop      

@@ -34,11 +34,12 @@ class AtletaController extends Controller
     public function listaAtletas() {
         DB::connection()->enableQueryLog();
         
-        if (view()->exists('atleta.listagem')) {
+  
             $atletas = DB::select('select tbatleta.id,
                                           tbatleta.nome,
                                           tbatleta.peso,
                                           tbatleta.altura,
+                                          tbtime.id as time_id,
                                           tbtime.nome as time_nome
                                      from tbatleta
                                      join tbtime
@@ -47,11 +48,9 @@ class AtletaController extends Controller
                 DB::getQueryLog()
             );
             
-            return view('atleta.listagem', 
-            ['atletas' => $atletas]);
-        } else {
-            return 'Página não encontrada.';
-        }
+          
+        return response()->json($atletas, 200)
+        ->header('Content-Type', 'application/json');
     }
 
     public function getAtleta($id) {

@@ -7,30 +7,17 @@
 @section('conteudo')
     <h5>Times</h5>
     <hr>
-    <p class="alert alert-info">{{ Session::get('message') }}</p>
+
+    <button onclick="formulario()">Cadastrar</button>
+
+    <div class="modal_leo">
+    </div>
 
     <table class="table">
 
     </table>
 
     <script>
-
-        function removeTime() {
-            oBotao = document.getElementById('delete');
-            var id = parseInt(oBotao.getAttribute('data-codigo'));
-
-            $.ajax({
-                url: '/api/time/time_delete/'+id,
-                type: 'DELETE',
-                success: function(result) {
-                    alert('Time removido com sucesso!');
-                }
-                
-                
-            });
-
-            return false;
-        }
 
         function carregarTimes() {
             oTable = document.querySelector('.table');
@@ -53,14 +40,18 @@
                 type: 'GET',
                 success: function(result) {
                     if(result) {
-
                         result.forEach(element => {
-                            console.log(element.nome);
                             const oTr = document.createElement('tr');
                             oTr.style.backgroundColor  = '#d3d4de';
 
+                            aHref = document.createElement('a');
+                        
+                            aHref.setAttribute('onclick', 'visualizarTime('+element.id+',"'+element.nome+'")');
+
                             oCodigo = document.createElement('td');
-                            oCodigo.innerHTML = element.id;
+                            oCodigo.appendChild(aHref);
+         
+                            aHref.innerHTML = element.id;
 
                             oTr.appendChild(oCodigo);
 
@@ -71,22 +62,28 @@
 
                             oAltera = document.createElement('td');
                             oImgAlt = document.createElement('img');
-                            oImgAlt.setAttribute('alt', 'Alterar');
                             oImgAlt.setAttribute('src', 'http://localhost/trab_final_laravel/imagens/alterar.png');
-                            oImgAlt.setAttribute('width', '30px');
-                            oImgAlt.setAttribute('height', '30px');
-                            oImgAlt.setAttribute('onclick', 'teste()')
+                            oImgAlt.setAttribute('width', '45px');
+                            oImgAlt.setAttribute('height', '40px');
+                            oImgAlt.style.cursor = 'pointer';
+                            oImgAlt.setAttribute('onclick', 'formAlteraTime('+element.id+',"'+element.nome+'")');
+
+                            oRemove = document.createElement('td');
+                            oImgDel = document.createElement('img');
+                            oImgDel.setAttribute('src', 'http://localhost/trab_final_laravel/imagens/remover.png');
+                            oImgDel.setAttribute('width', '45px');
+                            oImgDel.setAttribute('height', '40px');
+                            oImgDel.style.cursor = 'pointer'
+                            oImgDel.setAttribute('onclick', 'deletaTime('+element.id+')');
                  
 
                             oAltera.appendChild(oImgAlt);
+                            oRemove.appendChild(oImgDel);
 
                             oTr.appendChild(oAltera);
-
+                            oTr.appendChild(oRemove);
                 
-
-                            
-
-                            oTable.appendChild(oTr);
+                            oTable.appendChild(oTr); 
                         });
                       
                     };
@@ -94,15 +91,157 @@
             });
         }
 
-        function teste() {
-            alert('oio');
+        function formAlteraTime(id, nome) {
+            formulario(id, nome);
+        }
+
+        function visualizarTime(id, nome) {
+            formulario(id, nome, true);
+        }
+
+        function alterarTime(codigo) {
+            debugger;
+            $.ajax({
+                url: '/api/time/update/'+codigo,
+                type: 'PUT',
+                data: {id: codigo, nome: document.getElementById('nome').value},
+                success: function(result) {
+                    alert('Time removido com sucesso!');
+                    carregarTimes();
+                }
+                
+            });
+
+            return false;
         }
 
         function deletaTime(id) {
-            //delete
-            //ajax
+            //mudar para remover a linha apenas.
+            $.ajax({
+                url: '/api/time/delete/'+id,
+                type: 'DELETE',
+                success: function(result) {
+                    alert('Time removido com sucesso!');
+                    oConsulta = document.querySelector('.table');
 
-            carregarTimes();
+                    while (oConsulta.firstChild) {
+                        oConsulta.removeChild(oConsulta.lastChild);
+                    }
+
+                    carregarTimes();
+                }
+            });
+
+            return false;
+        }
+
+        function formulario(id, nome, bVisualizacao = false) {
+            let bAltera = id ? true : false;
+
+            oModal = document.querySelector('.modal_leo');
+
+            //Limpa o Modal (Isso serve para quando ficar clicando no botão "Novo")
+            while (oModal.firstChild) {
+                oModal.removeChild(oModal.lastChild);
+            }
+
+            oModal.style.display = 'block';
+
+            oDivFechar = document.createElement('div');
+            oDivFechar.setAttribute('class', 'fechar');
+            oDivFechar.setAttribute('onclick', 'fechar()');
+            oDivFechar.innerHTML = 'X';
+            oModal.appendChild(oDivFechar);
+            
+            oForm = document.createElement('form');
+
+            oForm.setAttribute('onsubmit', bAltera ? 'alterarTime('+id+')' : 'cadastrarTime()');
+
+            oH1 = document.createElement('h1');
+
+            if(!bVisualizacao) {
+                oH1.innerHTML = bAltera ? 'Alteração do time: '+ nome : 'Cadastro de Times';
+            } else {
+                oH1.innerHTML = 'Detalhamento do Time'
+            }
+
+            oH1.style.textAlign = 'center';
+            
+            if(bVisualizacao) {
+                oLabelCodigo = document.createElement('label');
+                oLabelCodigo.setAttribute('for', 'codigo');
+                oLabelCodigo.innerHTML = 'Código:';
+
+                oInputCod = document.createElement('input');
+                oInputCod.setAttribute('type', 'text');
+                oInputCod.setAttribute('name', 'codigo');
+                oInputCod.setAttribute('id', 'codigo');
+                oInputCod.setAttribute('disabled', true);
+            }
+
+
+            oLabel = document.createElement('label');
+            oLabel.setAttribute('for', 'nome');
+            oLabel.innerHTML = 'Nome:';
+
+            oInput = document.createElement('input');
+            oInput.setAttribute('type', 'text');
+            oInput.setAttribute('name', 'nome');
+            oInput.setAttribute('id', 'nome');
+
+            if (bAltera) {
+                oInput.value = nome;
+                oInputCod.value = id;
+            } 
+            
+            if (bVisualizacao) {
+                oInput.setAttribute('disabled', true);
+            }
+
+            if (!bVisualizacao) {
+                oSubmit = document.createElement('input');
+                oSubmit.setAttribute('type', 'submit');
+                oSubmit.setAttribute('value', bAltera ? 'Alterar': 'Cadastrar');
+                oSubmit.style.marginTop = '50px';
+                oSubmit.style.marginLeft = '40%';
+            }
+
+            oForm.appendChild(oH1);
+
+            if(bVisualizacao) {
+                oForm.appendChild(oLabelCodigo);
+                oForm.appendChild(oInputCod);
+                oForm.appendChild(document.createElement('br'));
+            }
+
+            oForm.appendChild(oLabel);
+            oForm.appendChild(oInput);
+            oForm.appendChild(document.createElement('br'));
+
+            if (!bVisualizacao) {
+                oForm.appendChild(oSubmit);
+            }
+
+            oModal.appendChild(oForm);
+        }
+
+        function fechar() {
+            let modal = document.querySelector('.modal_leo');
+            modal.style.display = 'none';
+        }
+
+        function cadastrarTime() {
+            $.ajax({
+                url: '/api/time',
+                type: 'POST',
+                data: {nome: document.getElementById('nome').value},
+                success: function(result) {
+                    alert('Time cadastrado com sucesso!');
+                   // carregarTimes();
+                }
+            });
+
+            return true;
         }
 
         $(function() {
@@ -111,4 +250,4 @@
         
     </script>
 
-@stop
+@stop      

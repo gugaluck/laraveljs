@@ -11,28 +11,49 @@
     
     <title>@yield('titulo')</title>
   </head>
+  <style>
+    .modal {
+      width: 500px;
+      height: 500px;
+      background-color: darkgray;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display:none;
+    }
+
+    .fechar {
+      width: 30px;
+      height: 30px;
+      background-color: darkgray;
+      border-radius: 50%;
+      float: right;
+      cursor: pointer;
+    }
+
+  </style>
   <body>
 
     <!-- verificar autenticação -->
-
+    <?php 
+    if (true) {
+      echo '<a href="/time">Times</a>
+      <a href="/atleta">Atletas</a>
+      <a href="/campeonato">Campeonatos</a>
+      <a href="/timecampeonato">Time x Campeonato</a>';
+  
+      echo '<div class="container">'; ?>
+               @yield('conteudo')
+      <?php 
+      echo '</div>';
+    } else {
+      echo 'oi';
+    }
+    ?>
   
 
-    <a href="/api/time/formulario">Cadastro - Time</a>
-    <a href="/time">Times</a>
-    <a href="/api/atleta/formulario">Cadastro - Atleta</a>
-    <a href="/api/atleta">Atletas</a>
-    <a href="/api/campeonato/formulario">Cadastro - Campeonato</a>
-    <a href="/api/campeonato">Campeonatos</a>
-    <a href="/api/timecampeonato/formulario">Cadastro - Time x Campeonato</a>
-    <a href="/api/timecampeonato">Time x Campeonato</a>
-
-    <div class="container">
-        @yield('conteudo')
-    </div>
-
-    <!-- else -->
-
-    <!-- tela de login -->
 
   </body>
+
 </html>

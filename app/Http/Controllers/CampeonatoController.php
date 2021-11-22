@@ -33,17 +33,13 @@ class CampeonatoController extends Controller
     public function listaCampeonatos() {
         DB::connection()->enableQueryLog();
         
-        if (view()->exists('campeonato.listagem')) {
-            $campeonato = Campeonato::all();
-            Log::info(
-                DB::getQueryLog()
-            );
-            
-            return view('campeonato.listagem', 
-            ['campeonatos' => $campeonato]);
-        } else {
-            return 'Página não encontrada.';
-        }
+        $campeonato = Campeonato::all();
+        Log::info(
+            DB::getQueryLog()
+        );
+
+        return response()->json($campeonato, 200)
+                ->header('Content-Type', 'application/json');
     }
 
     public function getCampeonato($id) {
